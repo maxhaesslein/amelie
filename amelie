@@ -20,8 +20,12 @@ from libcamera import controls
 
 
 windowName = "Amelie"
-width = 720
-height = 720
+windowWidth = 720
+windowHeight = 720
+
+# max resolution of camera module 3 is 4608x2592
+captureWidth = 2592
+captureHeight = 2592
 
 print('amelie v.3')
 
@@ -29,18 +33,25 @@ print('amelie v.3')
 # setup picam
 
 picam = Picamera2()
+picam.configure(
+    picam.create_still_configuration(
+        main={
+            "format": "RGB888",
+            "size": (captureWidth, captureHeight),
+        },
+        lores={
+            "format": "RGB888",
+            "size": (windowWidth, windowHeight)
+        },
+        display="lores"
+    )
+)
 #picam.configure(
-#    picam.create_still_configuration(main={
+#    picam.create_preview_configuration(main={
 #        "format": "RGB888",
-#        "size": (width, height),
+#        "size": (windowWidth, windowHeight),
 #    })
 #)
-picam.configure(
-    picam.create_preview_configuration(main={
-        "format": "RGB888",
-        "size": (width, height),
-    })
-)
 
 #picam.set_controls({
 #    "AfMode": controls.AfModeEnum.Continuos
@@ -51,7 +62,7 @@ picam.start()
 
 # setup window
 cv2.namedWindow( windowName, cv2.WINDOW_NORMAL )
-cv2.resizeWindow( windowName, width, height )
+cv2.resizeWindow( windowName, windowWidth, windowWeight )
 cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
 
 
@@ -66,13 +77,5 @@ while True:
         break
     elif key == 32: # space
         picam.autofocus_cycle(wait=False) # trigger autofocus async
-
-#job = picam2.autofocus_cycle(wait=False) # trigger autofocus
-#success = picam2.wait(job) # check if autofocus is finished
-
-#img = picam.capture_array("main")
-#cv2.imshow( windowName, img )
-#key = cv2.waitKey(2)
-
 
 
