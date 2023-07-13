@@ -1,0 +1,78 @@
+#!/usr/bin/python
+
+
+# Amelie v3, 2023
+# by maxhaesslein, 2018-2023
+# www.maxhaesslein.de
+
+
+# dependencies: opencv, picamera2
+# sudo apt install python3-opencv python3-picamera2
+# sudo apt install xserver-xorg xinit
+#
+# start with:
+# startx /home/mh/amelie/amelie
+
+
+import cv2
+from picamera2 import Picamera2
+from libcamera import controls
+
+
+windowName = "Amelie"
+width = 720
+height = 720
+
+print('amelie v.3')
+
+
+# setup picam
+
+picam = Picamera2()
+#picam.configure(
+#    picam.create_still_configuration(main={
+#        "format": "RGB888",
+#        "size": (width, height),
+#    })
+#)
+picam.configure(
+    picam.create_preview_configuration(main={
+        "format": "RGB888",
+        "size": (width, height),
+    })
+)
+
+#picam.set_controls({
+#    "AfMode": controls.AfModeEnum.Continuos
+#})
+
+picam.start()
+
+
+# setup window
+cv2.namedWindow( windowName, cv2.WINDOW_NORMAL )
+cv2.resizeWindow( windowName, width, height )
+cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
+
+
+# throw-away test:
+
+while True:
+    im = picam.capture_array("main")
+
+    cv2.imshow( windowName, im )
+    key = cv2.waitKey(1)
+    if key == 27: # escape
+        break
+    elif key == 32: # space
+        picam.autofocus_cycle(wait=False) # trigger autofocus async
+
+#job = picam2.autofocus_cycle(wait=False) # trigger autofocus
+#success = picam2.wait(job) # check if autofocus is finished
+
+#img = picam.capture_array("main")
+#cv2.imshow( windowName, img )
+#key = cv2.waitKey(2)
+
+
+
