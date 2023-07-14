@@ -32,6 +32,9 @@ captureWidth = 2592
 captureHeight = 2592
 
 
+continuousAutofocus = True
+
+
 
 print('amelie v.3')
 
@@ -55,11 +58,15 @@ picam.configure(
 
 picam.start()
 
+if continuousAutofocus:
+    picam.set_controls({"AfMode": controls.AfModeEnum.Continuous})
+
 
 # setup window
 cv2.namedWindow( windowName, cv2.WINDOW_NORMAL )
 cv2.resizeWindow( windowName, windowWidth, windowHeight )
 cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
+
 
 
 # main loop
@@ -77,11 +84,14 @@ while True:
     if key == 27: # escape
         break
     elif key == 32: # space
+
         timestamp = int(time.time())
         fileName = outputDirectory+str(timestamp)+'.jpg'
         picam.capture_file(fileName)
+        # TODO: send image to printer
+
     elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
 
-
+    
 
