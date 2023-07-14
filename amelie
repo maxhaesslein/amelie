@@ -48,7 +48,7 @@ picam.configure(
         },
         lores={
             "size": (windowWidth, windowHeight)
-            # lores is always YUV420
+            # lores format is always YUV420
         },
     )
 )
@@ -62,11 +62,15 @@ cv2.resizeWindow( windowName, windowWidth, windowHeight )
 cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
 
 
-# throw-away test:
-
+# main loop
 while True:
-    im = picam.capture_array("lores")
-    im = cv2.cvtColor( im, cv2.COLOR_YUV420p2RGB )
+    preview = picam.capture_array("lores")
+
+    # because the lores stream is always YUV420, we need to convert it:
+    im = cv2.cvtColor( preview, cv2.COLOR_YUV420p2RGB )
+    # and crop it:
+    im = im[0:windowWidth, 0:windowHeight]
+
 
     cv2.imshow( windowName, im )
     key = cv2.waitKey(1)
@@ -78,4 +82,6 @@ while True:
         picam.capture_file(fileName)
     elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
+
+
 
