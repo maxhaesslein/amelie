@@ -21,6 +21,7 @@ import time
 import cups
 import sys
 import os
+from gpiozero import LED
 
 
 outputDirectory = "/home/mh/amelie/images/"
@@ -42,9 +43,54 @@ continuousAutofocus = True
 printerName = 'ZJ-58'
 
 
+# PIN numbers are GPIO/BCM numbers
+pinR = 17
+pinG = 27
+pinB = 22
+
+
+
 print('amelie v.3')
 
 
+# setup LED
+ledR = LED(pinR)
+ledG = LED(pinG)
+ledB = LED(pinB)
+
+currentColor = False
+def setColor( color ):
+    # this is a bit confusing, but to set a color, use led.off() and to disable that color use led.on()
+
+    global currentColor
+
+    if color == currentColor:
+        return
+
+    if color == 'red':
+        ledR.off()
+        ledG.on()
+        ledB.on()
+    elif color == 'green':
+        ledR.on()
+        ledG.off()
+        ledB.on()
+    elif color == 'blue':
+        ledR.on()
+        ledG.on()
+        ledB.off()
+    elif color == 'white':
+        ledR.off()
+        ledG.off()
+        ledB.off()
+    else:
+        ledR.on()
+        ledG.on()
+        ledB.on()
+
+    currentColor = color
+
+setColor('white')
 
 # setup printer
 cupsConnection = cups.Connection()
@@ -114,6 +160,7 @@ while True:
 
 
     if state == 'capture':
+        setColor('blue')
 
         timestamp = str(int(time.time()))
 
@@ -123,6 +170,7 @@ while True:
         state = 'prepare'
 
     elif state == 'prepare':
+        setColor('blue')
 
         printImage = cv2.imread( fileName, cv2.IMREAD_GRAYSCALE)
         printImage = cv2.resize( printImage, (printWidth, printHeight) )
@@ -136,6 +184,7 @@ while True:
         state = 'print'
 
     elif state == 'print':
+        setColor('red')
 
         if not printJobId:
             printJobId = cupsConnection.printFile( printerFound, printFileName, windowName, {} )
@@ -147,10 +196,15 @@ while True:
             state = 'cleanup'
 
     elif state == 'cleanup':
+        setColor('red')
 
         os.remove( printFileName )
         printFileName = False
         state = 'idle'
+
+    else:
+        # idle
+        setColor('green')
 
 
     if key == 27: # escape
