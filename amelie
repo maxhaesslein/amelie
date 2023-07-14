@@ -21,7 +21,7 @@ import time
 import cups
 import sys
 import os
-from gpiozero import LED
+from gpiozero import RGBLED, Button
 
 
 outputDirectory = "/home/mh/amelie/images/"
@@ -47,20 +47,20 @@ printerName = 'ZJ-58'
 pinR = 17
 pinG = 27
 pinB = 22
+pinButton = 23
 
 
 
 print('amelie v.3')
 
 
-# setup LED
-ledR = LED(pinR)
-ledG = LED(pinG)
-ledB = LED(pinB)
+# setup GPIOs
+led = RGBLED( red=pinR, green=pinG, blue=pinB )
+button = Button( pinButton )
 
 currentColor = False
 def setColor( color ):
-    # this is a bit confusing, but to set a color, use led.off() and to disable that color use led.on()
+    # NOTE: 0 means on, 1 means off
 
     global currentColor
 
@@ -68,25 +68,15 @@ def setColor( color ):
         return
 
     if color == 'red':
-        ledR.off()
-        ledG.on()
-        ledB.on()
+        led.color = (0,1,1)
     elif color == 'green':
-        ledR.on()
-        ledG.off()
-        ledB.on()
+        led.color = (1,0,1)
     elif color == 'blue':
-        ledR.on()
-        ledG.on()
-        ledB.off()
+        led.color = (1,1,0)
     elif color == 'white':
-        ledR.off()
-        ledG.off()
-        ledB.off()
+        led.color = (0,0,0)
     else:
-        ledR.on()
-        ledG.on()
-        ledB.on()
+        led.color = (1,1,1)
 
     currentColor = color
 
@@ -205,6 +195,10 @@ while True:
     else:
         # idle
         setColor('green')
+
+        # NOTE: is_pressed is the other way round; if True: button is released and if False: button is pressed
+        if not button.is_pressed:
+            state = 'capture'
 
 
     if key == 27: # escape
