@@ -55,28 +55,26 @@ print('amelie v.3')
 
 
 # setup GPIOs
-led = RGBLED( red=pinR, green=pinG, blue=pinB )
-button = Button( pinButton )
+led = RGBLED( red=pinR, green=pinG, blue=pinB, active_high = False )
+button = Button( pin=pinButton, pull_up=None, active_state=True )
 
 currentColor = False
 def setColor( color ):
-    # NOTE: 0 means on, 1 means off
-
     global currentColor
 
     if color == currentColor:
         return
 
     if color == 'red':
-        led.color = (0,1,1)
+        led.color = (1,0,0)
     elif color == 'green':
-        led.color = (1,0,1)
+        led.color = (0,1,0)
     elif color == 'blue':
-        led.color = (1,1,0)
+        led.color = (0,0,1)
     elif color == 'white':
-        led.color = (0,0,0)
-    else:
         led.color = (1,1,1)
+    else:
+        led.color = (0,0,0)
 
     currentColor = color
 
@@ -196,8 +194,7 @@ while True:
         # idle
         setColor('green')
 
-        # NOTE: is_pressed is the other way round; if True: button is released and if False: button is pressed
-        if not button.is_pressed:
+        if button.is_pressed:
             state = 'capture'
 
 
