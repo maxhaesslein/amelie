@@ -27,55 +27,49 @@ windowHeight = 720
 captureWidth = 2592
 captureHeight = 2592
 
+
+
 print('amelie v.3')
 
 
 # setup picam
 
 picam = Picamera2()
+
 picam.configure(
     picam.create_still_configuration(
         main={
-            "format": "RGB888",
             "size": (captureWidth, captureHeight),
+            "format": "RGB888",
         },
         lores={
-            "format": "RGB888",
             "size": (windowWidth, windowHeight)
+            # lores is always YUV420
         },
-        display="lores"
     )
 )
-#picam.configure(
-#    picam.create_preview_configuration(main={
-#        "format": "RGB888",
-#        "size": (windowWidth, windowHeight),
-#    })
-#)
-
-#picam.set_controls({
-#    "AfMode": controls.AfModeEnum.Continuos
-#})
 
 picam.start()
 
 
 # setup window
 cv2.namedWindow( windowName, cv2.WINDOW_NORMAL )
-cv2.resizeWindow( windowName, windowWidth, windowWeight )
+cv2.resizeWindow( windowName, windowWidth, windowHeight )
 cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
 
 
 # throw-away test:
 
 while True:
-    im = picam.capture_array("main")
+    im = picam.capture_array("lores")
+    im = cv2.cvtColor( im, cv2.COLOR_YUV420p2RGB )
 
     cv2.imshow( windowName, im )
     key = cv2.waitKey(1)
     if key == 27: # escape
         break
     elif key == 32: # space
+        picam.capture_file( 'test.jpg' )
+    elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
-
 
