@@ -17,6 +17,10 @@
 import cv2
 from picamera2 import Picamera2
 from libcamera import controls
+import time
+
+
+outputDirectory = "/home/mh/amelie/images/"
 
 
 windowName = "Amelie"
@@ -69,7 +73,9 @@ while True:
     if key == 27: # escape
         break
     elif key == 32: # space
-        picam.capture_file( 'test.jpg' )
+        timestamp = int(time.time())
+        fileName = outputDirectory+str(timestamp)+'.jpg'
+        picam.capture_file(fileName)
     elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
 
