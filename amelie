@@ -18,9 +18,13 @@ import cv2
 from picamera2 import Picamera2
 from libcamera import controls
 import time
+import cups
+import sys
+import os
 
 
 outputDirectory = "/home/mh/amelie/images/"
+tempDirectory =   "/home/mh/amelie/temp/"
 
 
 windowName = "Amelie"
@@ -31,6 +35,9 @@ windowHeight = 720
 captureWidth = 2592
 captureHeight = 2592
 
+printWidth = 384
+printHeight = 384
+
 
 continuousAutofocus = True
 
@@ -38,6 +45,19 @@ continuousAutofocus = True
 
 print('amelie v.3')
 
+
+
+# setup printer
+cupsConnection = cups.Connection()
+cups.setUser('mh')
+printers = cupsConnection.getPrinters()
+printerName = False
+for printer in printers:
+    if str(printer) == 'ZJ-58':
+        printerName = str(printer)
+if not printerName:
+    print('Printer not found.')
+    sys.exit()
 
 # setup picam
 
@@ -68,6 +88,7 @@ cv2.resizeWindow( windowName, windowWidth, windowHeight )
 cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
 
 
+printJob = False
 
 # main loop
 while True:
@@ -85,10 +106,19 @@ while True:
         break
     elif key == 32: # space
 
-        timestamp = int(time.time())
-        fileName = outputDirectory+str(timestamp)+'.jpg'
-        picam.capture_file(fileName)
-        # TODO: send image to printer
+        timestamp = str(int(time.time()))
+        fileName = outputDirectory+timestamp+'.jpg'
+        picam.capture_file(fileName, wait=True)
+
+        printImage = cv2.imread( fileName, cv2.IMREAD_GRAYSCALE)
+        printImage = cv2.resize( printImage, (printWidth, printHeight) )
+
+        printFileName = tempDirectory+timestamp+'_print.jpg'
+        cv2.imwrite( printFileName, printImage )
+
+        #printJob = cupsConnection( printerName, printFileName, windowName, {'orientation-requested': '3'})
+
+        #os.remove( printFileName )
 
     elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
