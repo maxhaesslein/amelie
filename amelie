@@ -26,7 +26,6 @@ import os
 outputDirectory = "/home/mh/amelie/images/"
 tempDirectory =   "/home/mh/amelie/temp/"
 
-
 windowName = "Amelie"
 windowWidth = 720
 windowHeight = 720
@@ -38,9 +37,9 @@ captureHeight = 2592
 printWidth = 384
 printHeight = 384
 
-
 continuousAutofocus = True
 
+printerName = 'ZJ-58'
 
 
 print('amelie v.3')
@@ -51,16 +50,16 @@ print('amelie v.3')
 cupsConnection = cups.Connection()
 cups.setUser('mh')
 printers = cupsConnection.getPrinters()
-printerName = False
+printerFound = False
 for printer in printers:
-    if str(printer) == 'ZJ-58':
-        printerName = str(printer)
-if not printerName:
+    if str(printer) == printerName:
+        printerFound = True
+if not printerFound:
     print('Printer not found.')
     sys.exit()
 
-# setup picam
 
+# setup picam
 picam = Picamera2()
 
 picam.configure(
@@ -88,7 +87,12 @@ cv2.resizeWindow( windowName, windowWidth, windowHeight )
 cv2.setWindowProperty( windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
 
 
-printJob = False
+font = cv2.FONT_HERSHEY_SIMPLEX
+
+
+printJobId = False
+printFileName = False
+state = 'idle'
 
 # main loop
 while True:
@@ -99,12 +103,13 @@ while True:
     # and crop it:
     im = im[0:windowWidth, 0:windowHeight]
 
+    cv2.putText(im, state, (10,80), font, 3, (0,255,0), 2, cv2.LINE_AA) # DEBUG
 
     cv2.imshow( windowName, im )
     key = cv2.waitKey(1)
-    if key == 27: # escape
-        break
-    elif key == 32: # space
+
+
+    if state == 'capture':
 
         timestamp = str(int(time.time()))
         fileName = outputDirectory+timestamp+'.jpg'
@@ -116,9 +121,30 @@ while True:
         printFileName = tempDirectory+timestamp+'_print.jpg'
         cv2.imwrite( printFileName, printImage )
 
-        #printJob = cupsConnection( printerName, printFileName, windowName, {'orientation-requested': '3'})
+        state = 'print'
 
-        #os.remove( printFileName )
+    elif state == 'print':
+
+        state = 'idle' # DEBUG
+        printJobId = True # DEBUG
+
+        if not printJobId:
+            printJobId = cupsConnection.printFile( printerName, printFileName, windowName ) #, {'orientation-requested': '3'})
+
+        elif not cupsConnection.getJobs().get(printJobId, None): # finished printing
+            os.remove( printFileName )
+
+            state = 'idle'
+
+            printJobId = False
+            printFileName = False
+
+
+    if key == 27: # escape
+        break
+
+    elif key == 32: # space
+        state = 'capture'
 
     elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
