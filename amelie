@@ -61,6 +61,7 @@ options = {
     'pinG': 27,
     'pinB': 22,
     'pinButton': 23,
+    'pinShutdown': 21,
 
     'font': cv2.FONT_HERSHEY_TRIPLEX,
     'fontSize': 5,
@@ -92,7 +93,7 @@ if os.path.isfile(options['configPath']+'amelie.txt'):
             options[option] = False
         elif options[option] == "True":
             options[option] = True
-        elif option == "pinR" or option == "pinG" or option == "pinB" or option == "pinButton" or option == 'fontSize' or option == 'windowWidth' or option == 'windowHeight' or option == 'captureWidth' or option == 'captureHeight' or option == 'printWidth' or option == 'printHeight':
+        elif option == "pinR" or option == "pinG" or option == "pinB" or option == "pinButton" or option == 'pinShutdown' or option == 'fontSize' or option == 'debugFontSize' or option == 'windowWidth' or option == 'windowHeight' or option == 'captureWidth' or option == 'captureHeight' or option == 'printWidth' or option == 'printHeight':
             options[option] = int(options[option])
 
 
@@ -109,6 +110,10 @@ print(options)
 # setup GPIOs
 led = RGBLED( red=options['pinR'], green=options['pinG'], blue=options['pinB'], active_high = False )
 button = Button( pin=options['pinButton'], pull_up=None, active_state=True )
+
+shutdownButton = False
+if options['pinShutdown']:
+    shutdownButton = Button( pin=options['pinShutdown'], hold_time=5 )
 
 currentColor = False
 def setColor( color ):
@@ -361,6 +366,12 @@ while True:
         if button.is_pressed:
             countdownStart = time.time()
             state = 'countdown'
+
+
+    if options['pinShutdown'] and shutdownButton.is_held:
+        print('shutdown button pressed')
+        os.system('sudo shutdown now')
+        break
 
 
     if key == 27: # escape
