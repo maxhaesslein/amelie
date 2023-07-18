@@ -1,0 +1,2 @@
+[Amelie]
+backupDirectory = /mnt/amelie-usb/images/

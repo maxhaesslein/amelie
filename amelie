@@ -221,6 +221,23 @@ for text in overlays:
         cv2.putText( img=overlays[text], text=string, org=(textX, textY), fontFace=options['font'], fontScale=fontSize, color=color, thickness=fontwidth, lineType=cv2.LINE_AA )
 
 
+# prepare pre & post image:
+preImage = False
+if os.path.isfile(options['configPath']+options['preImage']):
+    preImage = cv2.imread( options['configPath']+options['preImage'], cv2.IMREAD_GRAYSCALE )
+    preWidth, preHeight = preImage.shape[:2]
+    preWidthResize = options['printWidth']
+    preHeightResize = int(preWidthResize * preWidth/preHeight)
+    preImage = cv2.resize( preImage, (preWidthResize, preHeightResize) )
+
+postImage = False
+if os.path.isfile(options['configPath']+options['postImage']):
+    postImage = cv2.imread( options['configPath']+options['postImage'], cv2.IMREAD_GRAYSCALE )
+    postWidth, postHeight = postImage.shape[:2]
+    postWidthResize = options['printWidth']
+    postHeightResize = int(postWidthResize * postWidth/postHeight)
+    postImage = cv2.resize( postImage, (postWidthResize, postHeightResize) )
+
 
 printJobId = False
 fileName = False
@@ -294,6 +311,13 @@ while True:
         printImage = cv2.resize( printImage, (options['printWidth'], options['printHeight']) )
 
         printFileName = options['tempDirectory']+timestamp+'_print.jpg'
+
+        if preImage is not False:
+            printImage = np.concatenate( (preImage, printImage), axis=0 )
+
+        if postImage is not False:
+            printImage = np.concatenate( (printImage, postImage), axis=0 )
+
         cv2.imwrite( printFileName, printImage )
 
         fileName = False
@@ -325,7 +349,7 @@ while True:
         setColor('red-blink')
 
         if printFileName:
-            os.remove( printFileName )
+            #DEBUG os.remove( printFileName )
             printFileName = False
 
         state = 'idle'
