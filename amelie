@@ -17,11 +17,11 @@
 import cv2
 from picamera2 import Picamera2
 from libcamera import controls
+from gpiozero import RGBLED, Button
 import time
 import cups
 import sys
 import os
-from gpiozero import RGBLED, Button
 
 
 options = {
@@ -212,4 +212,5 @@ while True:
         picam.autofocus_cycle(wait=False) # trigger autofocus async
 
 
+print( 'bye ...' )
 
