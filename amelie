@@ -18,6 +18,7 @@ import cv2
 from picamera2 import Picamera2
 from libcamera import controls
 from gpiozero import RGBLED, Button
+from configparser import ConfigParser
 import time
 import cups
 import sys
@@ -26,8 +27,11 @@ import os
 
 options = {
 
+    'configPath': '/mnt/amelie-usb/',
+
     'outputDirectory': '/home/mh/amelie/images/',
     'tempDirectory': '/home/mh/amelie/temp/',
+    'backupDirectory': False,
 
     'windowName': 'Amelie',
     'windowWidth': 720,
@@ -51,10 +55,34 @@ options = {
     'pinB': 22,
     'pinButton': 23,
 
+    'font': cv2.FONT_HERSHEY_DUPLEX,
+    'fontSize': 3,
+
 }
 
 
 print('amelie v.3')
+
+
+
+# check for config file and read options
+if os.path.isfile(options['configPath']+'amelie.txt'):
+    configParser = ConfigParser()
+    configParser.read(options['configPath']+'amelie.txt')
+    for option in options:
+
+        if configParser.has_option('Amelie', option):
+            options[option] = configParser.get('Amelie', option)
+
+        if options[option] == "False":
+            options[option] = False
+        elif options[option] == "True":
+            options[option] = True
+        elif option == "pinR" or option == "pinG" or option == "pinB" or option == "pinButton" or option == 'fontSize' or option == 'windowWidth' or option == 'windowHeight' or option == 'captureWidth' or option == 'captureHeight' or option == 'printWidth' or option == 'printHeight':
+            options[option] = int(options[option])
+
+
+print(options)
 
 
 # setup GPIOs
@@ -124,8 +152,6 @@ cv2.resizeWindow( options['windowName'], options['windowWidth'], options['window
 cv2.setWindowProperty( options['windowName'], cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN )
 
 
-font = cv2.FONT_HERSHEY_SIMPLEX
-
 
 printJobId = False
 fileName = False
@@ -144,7 +170,7 @@ while True:
     # and mirror it:
     im = cv2.flip( im, 1 )
 
-    cv2.putText( im, state, (10,80), font, 3, (0,255,0), 2, cv2.LINE_AA ) # DEBUG
+    cv2.putText( im, state, (10,80), options['font'], options['fontSize'], (0,255,0), 2, cv2.LINE_AA ) # DEBUG
 
     cv2.imshow( options['windowName'], im )
     key = cv2.waitKey(1)
