@@ -32,7 +32,7 @@ options = {
 
     'mirrorScreen': True,
 
-    'configPath': '/mnt/amelie-usb/',
+    'configPath': '/media/usb0/',
 
     'outputDirectory': '/home/mh/amelie/images/',
     'tempDirectory': '/home/mh/amelie/temp/',
