@@ -202,6 +202,8 @@ for text in overlays:
         string = 'smile'
     elif string == 'print':
         string = 'drucke ...'
+    elif string == '1':
+        string = 'smile'
 
     fontSize = options['fontSize']
     if text == 'print':
@@ -278,9 +280,7 @@ while True:
         overlay_state = 'print'
     elif overlay_state == 'countdown':
         overlay_state = 3-int(time.time() - countdownStart)
-        if overlay_state == 0:
-            overlay_state = 'capture'
-        elif overlay_state < 0:
+        if overlay_state <= 0:
             overlay_state = 'capture'
             state = 'capture'
             countdownStart = False
