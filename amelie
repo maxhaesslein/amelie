@@ -13,6 +13,8 @@
 # start with:
 # startx /home/mh/amelie/amelie
 
+# autostart happens in ~/.config/systemd/user/amelie.service
+
 
 from picamera2 import Picamera2
 from libcamera import controls
@@ -52,7 +54,7 @@ options = {
     'continuousAutofocus': True,
 
     'printerName': 'ZJ-58',
-    'printerActive': False,
+    'printerActive': True,
 
     # PIN numbers are GPIO/BCM numbers
     'pinR': 17,
@@ -62,7 +64,7 @@ options = {
 
     'font': cv2.FONT_HERSHEY_TRIPLEX,
     'fontSize': 5,
-    'customFontFile': 'Averia_Serif_Libre/AveriaSerifLibre-Bold.ttf',
+    'customFontFile': '/home/mh/amelie/Averia_Serif_Libre/AveriaSerifLibre-Bold.ttf',
 
     'debugFont': cv2.FONT_HERSHEY_COMPLEX_SMALL,
     'debugFontSize': 1,
@@ -340,16 +342,14 @@ while True:
                 state = 'cleanup'
 
         else:
-
-            time.sleep(3) # DEBUG
-
+            time.sleep(1)
             state = 'cleanup'
 
     elif state == 'cleanup':
         setColor('red-blink')
 
         if printFileName:
-            #DEBUG os.remove( printFileName )
+            os.remove( printFileName )
             printFileName = False
 
         state = 'idle'
