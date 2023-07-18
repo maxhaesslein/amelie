@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# mount usb device via:
+# sudo mount -t vfat -o rw,uid=mh,gid=mh /dev/sda1 /mnt/amelie-usb
+
 export DISPLAY=:0.0
 startx /home/mh/amelie/amelie
 

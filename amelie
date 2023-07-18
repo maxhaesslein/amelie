@@ -23,6 +23,7 @@ import time
 import cups
 import sys
 import os
+import shutil
 
 
 options = {
@@ -82,7 +83,14 @@ if os.path.isfile(options['configPath']+'amelie.txt'):
             options[option] = int(options[option])
 
 
+# check if backupDirectory exists
+if not os.path.isdir(options['backupDirectory']):
+    options['backupDirectory'] = False
+
+
+
 print(options)
+
 
 
 # setup GPIOs
@@ -183,6 +191,10 @@ while True:
 
         fileName = options['outputDirectory']+timestamp+'.jpg'
         picam.capture_file(fileName, wait=True)
+
+        if options['backupDirectory']:
+            backupFileName = options['backupDirectory']+timestamp+'.jpg'
+            os.system('cp '+fileName+' '+backupFileName )
 
         state = 'prepare'
 
