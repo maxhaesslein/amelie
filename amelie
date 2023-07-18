@@ -14,19 +14,22 @@
 # startx /home/mh/amelie/amelie
 
 
-import cv2
 from picamera2 import Picamera2
 from libcamera import controls
 from gpiozero import RGBLED, Button
 from configparser import ConfigParser
+import numpy as np
+import cv2
 import time
 import cups
 import sys
 import os
-import shutil
 
 
 options = {
+
+    'debug': True,
+    'mirrorScreen': True,
 
     'configPath': '/mnt/amelie-usb/',
 
@@ -57,7 +60,7 @@ options = {
     'pinButton': 23,
 
     'font': cv2.FONT_HERSHEY_DUPLEX,
-    'fontSize': 3,
+    'fontSize': 5,
 
 }
 
@@ -164,6 +167,35 @@ cv2.setWindowProperty( options['windowName'], cv2.WND_PROP_FULLSCREEN, cv2.WINDO
 
 
 
+# prepare overlays
+overlays = {
+    'capture': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
+    'print': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
+}
+for text in overlays:
+
+    string = text
+    if string == 'capture':
+        string = 'smile'
+    elif string == 'print':
+        string = 'drucke ...'
+
+    fontSize = options['fontSize']
+    if text == 'print':
+        fontSize = 2
+
+    fontwidth = fontSize * 2
+
+    textsize = cv2.getTextSize(string, options['font'], fontSize, fontwidth)[0]
+    textX = int((overlays[text].shape[1] - textsize[0]) / 2)
+    textY = int((overlays[text].shape[0] + textsize[1]) / 2)
+    if text == 'print':
+        textY = (overlays[text].shape[0] - textsize[1])
+    color = (255,255,255)
+    cv2.putText(overlays[text], string.upper(), (textX, textY), options['font'], fontSize, color, fontwidth)
+
+
+
 printJobId = False
 fileName = False
 printFileName = False
@@ -178,10 +210,21 @@ while True:
     im = cv2.cvtColor( preview, cv2.COLOR_YUV420p2RGB )
     # and crop it:
     im = im[0:options['windowWidth'], 0:options['windowHeight']]
-    # and mirror it:
-    im = cv2.flip( im, 1 )
 
-    cv2.putText( im, state, (10,80), options['font'], options['fontSize'], (0,255,0), 2, cv2.LINE_AA ) # DEBUG
+    if options['mirrorScreen']:
+        im = cv2.flip( im, 1 )
+
+    # DEBUG overlay
+    if options['debug']:
+        cv2.putText( im, state, (10,80), options['font'], 2, (0,255,0), 2, cv2.LINE_AA )
+
+    # text overlay
+    overlay_state = state
+    if overlay_state == 'prepare':
+        overlay_state = 'capture'
+    if overlay_state in overlays:
+        im = cv2.add( im, overlays[overlay_state] )
+
 
     cv2.imshow( options['windowName'], im )
     key = cv2.waitKey(1)
@@ -231,7 +274,7 @@ while True:
 
         else:
 
-            time.sleep(1) # DEBUG
+            time.sleep(3) # DEBUG
 
             state = 'cleanup'
 
