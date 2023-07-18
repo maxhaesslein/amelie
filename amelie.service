@@ -1,0 +1,14 @@
+[Unit]
+Description=Amelie
+
+[Service]
+Environment=DISPLAY=:0
+ExecStart=/home/mh/amelie/start
+Restart=always
+RestartSec=5s
+KillMode=process
+TimeoutSec=infinity
+
+[Install]
+WantedBy=default.target
+
