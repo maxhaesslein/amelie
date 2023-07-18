@@ -43,6 +43,7 @@ options = {
     'continuousAutofocus': True,
 
     'printerName': 'ZJ-58',
+    'printerActive': False,
 
     # PIN numbers are GPIO/BCM numbers
     'pinR': 17,
@@ -176,12 +177,18 @@ while True:
     elif state == 'print':
         setColor('red')
 
-        if not printJobId:
-            printJobId = cupsConnection.printFile( printerFound, printFileName, options['windowName'], {} )
+        if options['printerActive']:
 
-        elif not cupsConnection.getJobs().get(printJobId, None): # finished printing
+            if not printJobId:
+                printJobId = cupsConnection.printFile( printerFound, printFileName, options['windowName'], {} )
 
-            printJobId = False
+            elif not cupsConnection.getJobs().get(printJobId, None): # finished printing
+
+                printJobId = False
+
+                state = 'cleanup'
+
+        else:
 
             state = 'cleanup'
 
