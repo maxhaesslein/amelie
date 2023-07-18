@@ -29,6 +29,7 @@ import os
 options = {
 
     'debug': True,
+
     'mirrorScreen': True,
 
     'configPath': '/mnt/amelie-usb/',
@@ -59,8 +60,14 @@ options = {
     'pinB': 22,
     'pinButton': 23,
 
-    'font': cv2.FONT_HERSHEY_DUPLEX,
+    'font': cv2.FONT_HERSHEY_TRIPLEX,
     'fontSize': 5,
+
+    'debugFont': cv2.FONT_HERSHEY_COMPLEX_SMALL,
+    'debugFontSize': 1,
+
+    'preImage': 'pre.png',
+    'postImage': 'post.png',
 
 }
 
@@ -169,6 +176,9 @@ cv2.setWindowProperty( options['windowName'], cv2.WND_PROP_FULLSCREEN, cv2.WINDO
 
 # prepare overlays
 overlays = {
+    '3': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
+    '2': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
+    '1': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
     'capture': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
     'print': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
 }
@@ -200,6 +210,8 @@ printJobId = False
 fileName = False
 printFileName = False
 timestamp = False
+countdownStart = False
+
 state = 'idle'
 
 # main loop
@@ -216,12 +228,24 @@ while True:
 
     # DEBUG overlay
     if options['debug']:
-        cv2.putText( im, state, (10,80), options['font'], 2, (0,255,0), 2, cv2.LINE_AA )
+        cv2.putText( im, state, (10,options['windowHeight']-10), options['debugFont'], options['debugFontSize'], (0,255,0), options['debugFontSize'], cv2.LINE_AA )
 
     # text overlay
     overlay_state = state
     if overlay_state == 'prepare':
         overlay_state = 'capture'
+    elif overlay_state == 'cleanup':
+        overlay_state = 'print'
+    elif overlay_state == 'countdown':
+        overlay_state = 3-int(time.time() - countdownStart)
+        if overlay_state == 0:
+            overlay_state = 'capture'
+        elif overlay_state < 0:
+            overlay_state = 'capture'
+            state = 'capture'
+            countdownStart = False
+        overlay_state = str(overlay_state)
+
     if overlay_state in overlays:
         im = cv2.add( im, overlays[overlay_state] )
 
@@ -230,7 +254,10 @@ while True:
     key = cv2.waitKey(1)
 
 
-    if state == 'capture':
+    if state == 'countdown':
+        pass
+
+    elif state == 'capture':
         setColor('green-fade')
 
         timestamp = str(int(time.time()))
@@ -279,7 +306,7 @@ while True:
             state = 'cleanup'
 
     elif state == 'cleanup':
-        setColor('red')
+        setColor('red-blink')
 
         if printFileName:
             os.remove( printFileName )
@@ -292,7 +319,8 @@ while True:
         setColor('green')
 
         if button.is_pressed:
-            state = 'capture'
+            countdownStart = time.time()
+            state = 'countdown'
 
 
     if key == 27: # escape
