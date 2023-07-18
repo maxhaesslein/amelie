@@ -104,15 +104,18 @@ def setColor( color ):
     if color == currentColor:
         return
 
-    if color == 'red':
-        led.color = (1,0,0)
+    if color == 'white':
+        led.color = (1,1,1)
     elif color == 'green':
         led.color = (0,1,0)
-    elif color == 'blue':
-        led.color = (0,0,1)
-    elif color == 'white':
-        led.color = (1,1,1)
+    elif color == 'green-fade':
+        # led.color = (0,0,1)
+        led.pulse( fade_in_time=0.5, fade_out_time=0.5, on_color=(0,1,0), off_color=(0,0,0) )
+    elif color == 'red-blink':
+        # led.color = (1,0,0)
+        led.pulse( fade_in_time=0.2, fade_out_time=0.2, on_color=(1,0,0), off_color=(0,0,0) )
     else:
+        # off
         led.color = (0,0,0)
 
     currentColor = color
@@ -185,7 +188,7 @@ while True:
 
 
     if state == 'capture':
-        setColor('blue')
+        setColor('green-fade')
 
         timestamp = str(int(time.time()))
 
@@ -199,7 +202,7 @@ while True:
         state = 'prepare'
 
     elif state == 'prepare':
-        setColor('blue')
+        setColor('green-fade')
 
         printImage = cv2.imread( fileName, cv2.IMREAD_GRAYSCALE)
         printImage = cv2.resize( printImage, (options['printWidth'], options['printHeight']) )
@@ -213,7 +216,7 @@ while True:
         state = 'print'
 
     elif state == 'print':
-        setColor('red')
+        setColor('red-blink')
 
         if options['printerActive']:
 
@@ -228,13 +231,17 @@ while True:
 
         else:
 
+            time.sleep(1) # DEBUG
+
             state = 'cleanup'
 
     elif state == 'cleanup':
         setColor('red')
 
-        os.remove( printFileName )
-        printFileName = False
+        if printFileName:
+            os.remove( printFileName )
+            printFileName = False
+
         state = 'idle'
 
     else:
