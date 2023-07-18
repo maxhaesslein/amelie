@@ -62,6 +62,7 @@ options = {
 
     'font': cv2.FONT_HERSHEY_TRIPLEX,
     'fontSize': 5,
+    'customFontFile': 'Averia_Serif_Libre/AveriaSerifLibre-Bold.ttf',
 
     'debugFont': cv2.FONT_HERSHEY_COMPLEX_SMALL,
     'debugFontSize': 1,
@@ -175,6 +176,11 @@ cv2.setWindowProperty( options['windowName'], cv2.WND_PROP_FULLSCREEN, cv2.WINDO
 
 
 # prepare overlays
+customFont = False
+if options['customFontFile']:
+    customFont = cv2.freetype.createFreeType2()
+    customFont.loadFontData( fontFileName=options['customFontFile'], id=0 )
+
 overlays = {
     '3': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
     '2': np.zeros((options['windowWidth'], options['windowHeight'], 3), np.uint8),
@@ -192,17 +198,27 @@ for text in overlays:
 
     fontSize = options['fontSize']
     if text == 'print':
-        fontSize = 2
+        fontSize = int(fontSize / 2)
 
     fontwidth = fontSize * 2
 
-    textsize = cv2.getTextSize(string, options['font'], fontSize, fontwidth)[0]
+    if customFont:
+        fontSize = fontSize * 40
+        textsize = customFont.getTextSize(string, fontSize, fontwidth)[0]
+    else:
+        textsize = cv2.getTextSize(string, options['font'], fontSize, fontwidth)[0]
+
     textX = int((overlays[text].shape[1] - textsize[0]) / 2)
     textY = int((overlays[text].shape[0] + textsize[1]) / 2)
     if text == 'print':
         textY = (overlays[text].shape[0] - textsize[1])
+
     color = (255,255,255)
-    cv2.putText(overlays[text], string.upper(), (textX, textY), options['font'], fontSize, color, fontwidth)
+
+    if customFont:
+        customFont.putText( img=overlays[text], text=string, org=(textX, textY), fontHeight=fontSize, color=color, thickness=-1, line_type=cv2.LINE_AA, bottomLeftOrigin=True )
+    else:
+        cv2.putText( img=overlays[text], text=string, org=(textX, textY), fontFace=options['font'], fontScale=fontSize, color=color, thickness=fontwidth, lineType=cv2.LINE_AA )
 
 
 
