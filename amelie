@@ -343,7 +343,11 @@ while True:
         if options['printerActive']:
 
             if not printJobId:
-                printJobId = cupsConnection.printFile( printerFound, printFileName, options['windowName'], {'fit-to-page': 'True'} )
+                printOptions = {
+                        'fit-to-page': 'True',
+                        'media': 'X48MMY210MM',
+                    }
+                printJobId = cupsConnection.printFile( printerFound, printFileName, options['windowName'], printOptions )
 
             elif not cupsConnection.getJobs().get(printJobId, None): # finished printing
 
