@@ -73,6 +73,8 @@ options = {
     'preImage': 'pre.png',
     'postImage': 'post.png',
 
+    'upsideDown': True,
+
 }
 
 
@@ -325,6 +327,9 @@ while True:
         if postImage is not False:
             printImage = np.concatenate( (printImage, postImage), axis=0 )
 
+        if options['upsideDown']:
+            printImage = cv2.flip(printImage, -1)
+
         cv2.imwrite( printFileName, printImage )
 
         fileName = False
@@ -338,7 +343,7 @@ while True:
         if options['printerActive']:
 
             if not printJobId:
-                printJobId = cupsConnection.printFile( printerFound, printFileName, options['windowName'], {} )
+                printJobId = cupsConnection.printFile( printerFound, printFileName, options['windowName'], {'fit-to-page': 'True'} )
 
             elif not cupsConnection.getJobs().get(printJobId, None): # finished printing
 
