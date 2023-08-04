@@ -258,6 +258,10 @@ countdownStart = False
 
 state = 'idle'
 
+previousTime = currentTime = time.time()
+fpsSmoothing = 0.6
+fps = 0
+
 # main loop
 while True:
     preview = picam.capture_array("lores")
@@ -270,9 +274,18 @@ while True:
     if options['mirrorScreen']:
         im = cv2.flip( im, 1 )
 
-    # DEBUG overlay
     if options['debug']:
-        cv2.putText( im, state, (10,options['windowHeight']-10), options['debugFont'], options['debugFontSize'], (0,255,0), options['debugFontSize'], cv2.LINE_AA )
+        text = state
+        textSize = cv2.getTextSize(text, options['debugFont'], options['debugFontSize'], options['debugFontSize'])[0]
+        textX = 10
+        textY = int(10+textSize[1])
+        cv2.putText( im, text, (textX,textY), options['debugFont'], options['debugFontSize'], (0,255,0), options['debugFontSize'], cv2.LINE_AA )
+
+        text = str(int(fps))
+        textSize = cv2.getTextSize(text, options['debugFont'], options['debugFontSize'], options['debugFontSize'])[0]
+        textX = int(options['windowWidth']-textSize[0] - 10)
+        textY = int(10+textSize[1])
+        cv2.putText( im, text, (textX,textY), options['debugFont'], options['debugFontSize'], (0,255,0), options['debugFontSize'], cv2.LINE_AA )
 
     # text overlay
     overlay_state = state
@@ -293,10 +306,17 @@ while True:
 
 
     cv2.imshow( options['windowName'], im )
+
+
+    previousTime, currentTime = currentTime, time.time()
+    newFps = round(1./(currentTime-previousTime))
+    fps = (fps * fpsSmoothing) + (newFps * (1.0-fpsSmoothing))
+
     key = cv2.waitKey(1)
 
 
     if state == 'countdown':
+        setColor('green-fade')
         pass
 
     elif state == 'capture':
