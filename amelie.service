@@ -3,7 +3,7 @@ Description=Amelie
 
 [Service]
 Environment=DISPLAY=:0
-ExecStart=/home/mh/amelie/start
+ExecStart=%h/amelie/start
 Restart=always
 RestartSec=5s
 KillMode=process
