@@ -34,8 +34,8 @@ options = {
 
     'configPath': '/media/usb0/',
 
-    'outputDirectory': 'images/',
-    'tempDirectory': 'temp/',
+    'outputDirectory': '/home/mh/amelie/images/',
+    'tempDirectory': '/home/mh/amelie/temp/',
     'backupDirectory': False,
 
     'mirrorScreen': True,
@@ -67,7 +67,7 @@ options = {
     'pinButton': 23,
     'pinShutdown': 21,
 
-    'customFontFile': 'Averia_Serif_Libre/AveriaSerifLibre-Bold.ttf',
+    'customFontFile': '/home/mh/amelie/Averia_Serif_Libre/AveriaSerifLibre-Bold.ttf',
     'font': cv2.FONT_HERSHEY_TRIPLEX,
     'fontSize': 5,
 
