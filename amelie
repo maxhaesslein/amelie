@@ -47,9 +47,10 @@ options = {
     'windowWidth': 720,
     'windowHeight': 720,
 
-    # max resolution of camera module 3 is 4608x2592
-    'captureWidth': 2592,
-    'captureHeight': 2592,
+    # max resolution of camera module 3 is 4608x2592;
+    # a resolution > 1695x1695 drops framerate significantly!
+    'captureWidth': 1695,
+    'captureHeight': 1695,
 
     'printWidth': 384,
     'printHeight': 384,
@@ -57,7 +58,7 @@ options = {
     'continuousAutofocus': True,
 
     'printerName': 'ZJ-58',
-    'printerActive': False, # DEBUG
+    'printerActive': True,
 
     # PIN numbers are GPIO/BCM numbers
     'pinR': 17,
@@ -262,23 +263,16 @@ fps = 0
 
 # main loop
 while True:
-    preview = picam.capture_array("lores")
 
-    timeStart = time.time()
+    preview = picam.capture_array("lores")
 
     # because the lores stream is always YUV420, we need to convert it:
     im = cv2.cvtColor( preview, cv2.COLOR_YUV420p2RGB )
     # and crop it:
     im = im[0:options['windowWidth'], 0:options['windowHeight']]
 
-    timePoint1 = time.time()-timeStart
-    timeStart = time.time()
-
     if options['mirrorScreen']:
         im = cv2.flip( im, 1 )
-
-    timePoint2 = time.time()-timeStart
-    timeStart = time.time()
 
     if options['debug']:
         text = state
@@ -292,9 +286,6 @@ while True:
         textX = int(options['windowWidth']-textSize[0] - 10)
         textY = int(10+textSize[1])
         cv2.putText( im, text, (textX,textY), options['debugFont'], options['debugFontSize'], (0,255,0), options['debugFontSize'], cv2.LINE_AA )
-
-    timePoint3 = time.time()-timeStart
-    timeStart = time.time()
 
     # text overlay
     overlay_state = state
@@ -313,18 +304,9 @@ while True:
     if overlay_state in overlays:
         im = cv2.add( im, overlays[overlay_state] )
 
-    timePoint4 = time.time()-timeStart
-    timeStart = time.time()
-
     cv2.imshow( options['windowName'], im )
 
-    timePoint5 = time.time()-timeStart
-    timeStart = time.time()
-
     key = cv2.waitKey(1)
-
-    timePoint6 = time.time()-timeStart
-    timeStart = time.time()
 
 
     if state == 'countdown':
@@ -425,26 +407,6 @@ while True:
 
     elif key == 13: # enter
         picam.autofocus_cycle(wait=False) # trigger autofocus async
-
-    timePoint7 = time.time()-timeStart
-
-    timePoint1 *= 100000
-    timePoint2 *= 100000
-    timePoint3 *= 100000
-    timePoint4 *= 100000
-    timePoint5 *= 100000
-    timePoint6 *= 100000
-    timePoint7 *= 100000
-
-    timePoint1 = int(timePoint1)
-    timePoint2 = int(timePoint2)
-    timePoint3 = int(timePoint3)
-    timePoint4 = int(timePoint4)
-    timePoint5 = int(timePoint5)
-    timePoint6 = int(timePoint6)
-    timePoint7 = int(timePoint7)
-
-    print( '1: '+str(timePoint1), '2: '+str(timePoint2), '3: '+str(timePoint3), '4: '+str(timePoint4), '5: '+str(timePoint5), '6: '+str(timePoint6), '7: '+str(timePoint7) )
 
     previousTime, currentTime = currentTime, time.time()
     newFps = round(1./(currentTime-previousTime))
