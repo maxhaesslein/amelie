@@ -30,7 +30,7 @@ import os
 
 options = {
 
-    'debug': True,
+    'debug': False,
 
     'configPath': '/media/usb0/',
 
