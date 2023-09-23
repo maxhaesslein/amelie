@@ -56,6 +56,8 @@ options = {
     'printHeight': 384,
 
     'continuousAutofocus': True,
+    'contrast': 0.9,
+    'meteringMode': controls.AeMeteringModeEnum.Spot,
 
     'printerName': 'ZJ-58',
     'printerActive': True,
@@ -175,8 +177,11 @@ picam.start()
 if options['continuousAutofocus']:
     picam.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 
-picam.set_controls({"AeMeteringMode": controls.AeMeteringModeEnum.Spot})
-picam.set_controls({"Contrast": 0.9})
+if options['meteringMode']:
+    picam.set_controls({"AeMeteringMode": options['meteringMode']})
+
+if options['contrast']:
+    picam.set_controls({"Contrast": options['contrast']})
 
 
 # setup window
