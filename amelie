@@ -175,6 +175,9 @@ picam.start()
 if options['continuousAutofocus']:
     picam.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 
+picam.set_controls({"AeMeteringMode": controls.AeMeteringModeEnum.Spot})
+picam.set_controls({"Contrast": 0.9})
+
 
 # setup window
 cv2.namedWindow( options['windowName'], cv2.WINDOW_NORMAL )
