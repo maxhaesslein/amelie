@@ -131,6 +131,8 @@ def setColor( color ):
         led.color = (0,1,0)
     elif color == 'red':
         led.color = (1,0,0)
+    elif color == 'green-fade':
+        led.pulse( fade_in_time=0.6, fade_out_time=0.6, on_color=(0,1,0), off_color=(0,0.2,0) )
     elif color == 'white-fade':
         led.pulse( fade_in_time=0.6, fade_out_time=0.6, on_color=(1,1,1), off_color=(0.2,0.2,0.2) )
     elif color == 'red-blink':
@@ -318,11 +320,11 @@ while True:
 
 
     if state == 'countdown':
-        setColor('white-fade')
+        setColor('white')
         pass
 
     elif state == 'capture':
-        setColor('white-fade')
+        setColor('white')
 
         timestamp = str(int(time.time()))
 
@@ -336,7 +338,7 @@ while True:
         state = 'prepare'
 
     elif state == 'prepare':
-        setColor('white-fade')
+        setColor('red-blink')
 
         printImage = cv2.imread( fileName, cv2.IMREAD_GRAYSCALE)
         printImage = cv2.resize( printImage, (options['printWidth'], options['printHeight']) )
@@ -392,7 +394,7 @@ while True:
 
     else:
         # idle
-        setColor('green')
+        setColor('green-fade')
 
         if button.is_pressed:
             countdownStart = time.time()
