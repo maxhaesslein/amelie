@@ -1,2 +1,7 @@
 [Amelie]
 backupDirectory = /media/usb0/images/
+preImage = /media/usb0/pre.png
+postImage = /media/usb0/post.jpg
+pinR = 27
+pinG = 22
+pinB = 17
