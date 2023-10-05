@@ -15,7 +15,7 @@ This is a personal project and may be a bit finicky to set up.
 - [Raspberry Pi Camera Module 3](https://www.raspberrypi.com/products/camera-module-3/)
 - [Aioneus 40W 4-Port Fast Charging Block](https://www.aioneus.com/collections/usb-charger-plug/products/aioneus-40w-4-port-fast-charging-block-pd-qc-wall-plug)
 - [DAOKAI USB Type-C Power Converter](https://www.amazon.de/dp/B0B2NSJ14M)
-- Plexi Plate (Thanks to Cosi for helping me with the laser cutter)
+- Plexi Plate (you can find a template in the `lasercut-template` folder)
 - Amazon Basic Case
 - small heat sinks for the Raspberry Pi
 - a fast SD card
