@@ -2,6 +2,8 @@
 
 **Amélie** is a selfie printer that prints photos on cheap thermal paper, perfect for parties or weddings. It is named after [the 2001 movie by Jean-Pierre Jeunet](https://letterboxd.com/film/amelie/).
 
+![Image of the thermal printer](amelie.jpg)
+
 See [here](https://www.maxhaesslein.de/visual/objects/amelie/) for more pictures and details.
 
 This is a personal project and may be a bit finicky to set up.
