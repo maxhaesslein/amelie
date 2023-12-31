@@ -26,6 +26,8 @@ import time
 import cups
 import sys
 import os
+import random
+import textwrap
 
 
 options = {
@@ -75,6 +77,8 @@ options = {
 
     'debugFont': cv2.FONT_HERSHEY_COMPLEX_SMALL,
     'debugFontSize': 1,
+
+    'randomTextFile': False,
 
 }
 
@@ -259,6 +263,17 @@ if os.path.isfile(options['configPath']+options['postImage']):
     postImage = cv2.resize( postImage, (postWidthResize, postHeightResize) )
 
 
+# prepare text
+texts = False
+if options['randomTextFile']:
+    with open(options['randomTextFile'], 'r') as file:
+        texts = file.read().splitlines()
+
+originalTexts = texts.copy()
+if texts:
+    random.shuffle(texts)
+
+
 printJobId = False
 fileName = False
 printFileName = False
@@ -351,8 +366,46 @@ while True:
         if postImage is not False:
             printImage = np.concatenate( (printImage, postImage), axis=0 )
 
+        if texts:
+            if len(texts) < 1:
+                texts = originalTexts.copy();
+                random.shuffle(texts)
+            text = texts.pop(0)
+
+            width = 0
+            height = 0
+            offset = 60
+            textWrapLength = 30
+
+            fontScale = 3.0
+            fontLineWidth = 6
+
+            text = textwrap.wrap(text, width=textWrapLength)
+
+            height += offset
+            for i, line in enumerate(text):
+                (label_width, label_height), baseline = cv2.getTextSize(line, options['font'], fontScale, fontLineWidth)
+                if label_width > width:
+                    width = label_width
+                height += int(label_height) + baseline
+
+            textImage = np.zeros((height,width,1), np.uint8)
+            textImage[:] = (255)
+
+            for i, line in enumerate(text):
+                (label_width, label_height), baseline = cv2.getTextSize(line, options['font'], fontScale, fontLineWidth)
+                left = int((width - label_width) / 2)
+                cv2.putText(textImage, line, (left, offset+int(label_height)-1), options['font'], fontScale, 0, fontLineWidth)
+                offset += int(label_height) + baseline
+
+            scaling_factor = options['printWidth'] / float(width)
+            textImage = cv2.resize(textImage, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+            printImage = np.concatenate((printImage, textImage), axis=0)
+
         if options['printUpsideDown']:
             printImage = cv2.flip(printImage, -1)
+
+
 
         cv2.imwrite( printFileName, printImage )
 
